@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "bootcamp.uploadName" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.upload.storage.size }}
+  {{- with .Values.upload.storage.storageClass }}
+  storageClassName: {{ . }}
+  {{- end }}

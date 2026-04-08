@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Share</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>File Share</h1>
+        <nav class="header-nav">
+            <div class="user-menu">
+                <button class="user-menu-btn" id="user-menu-btn">
+                    <span id="username-display"></span> &#9662;
+                </button>
+                <div class="user-menu-dropdown" id="user-menu-dropdown" hidden>
+                    <div class="dropdown-section">
+                        <button class="dropdown-item" id="change-pw-toggle">Change password</button>
+                        <form id="password-form" class="dropdown-pw-form" hidden>
+                            <input type="password" id="pw-current" placeholder="Current password" required autocomplete="current-password">
+                            <input type="password" id="pw-new" placeholder="New password" required autocomplete="new-password">
+                            <input type="password" id="pw-confirm" placeholder="Confirm new password" required autocomplete="new-password">
+                            <div id="pw-status" class="status-msg"></div>
+                            <button type="submit" class="btn btn-sm">Update</button>
+                        </form>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <form method="POST" action="/logout">
+                        <button type="submit" class="dropdown-item">Sign out</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="layout">
+        <div class="card">
+            <h2>Upload a file</h2>
+            <form id="upload-form">
+                <div class="field">
+                    <label for="file-input">File</label>
+                    <input type="file" id="file-input" required>
+                </div>
+                <div class="upload-opts">
+                    <label class="check-label">
+                        <input type="checkbox" id="opt-private">
+                        Private
+                    </label>
+                    <label class="check-label">
+                        <input type="checkbox" id="opt-single">
+                        Single use
+                    </label>
+                </div>
+                <button type="submit" class="btn">Upload</button>
+                <div id="upload-status" class="status-msg"></div>
+            </form>
+        </div>
+        <div class="card">
+            <h2>Your files</h2>
+            <div id="file-list"><p class="empty">Loading&hellip;</p></div>
+        </div>
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>

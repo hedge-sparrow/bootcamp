@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bootcamp.fullname" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+data:
+  BIND_ADDRESS: {{ .Values.config.bindAddress | quote }}
+  UPLOAD_SERVICE_URL: {{ .Values.config.uploadServiceURL | default (printf "http://%s:8080" (include "bootcamp.uploadName" .)) | quote }}
+  COOKIE_SECURE: {{ .Values.config.cookieSecure | quote }}

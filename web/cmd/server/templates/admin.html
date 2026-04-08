@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Admin</h1>
+        <nav class="header-nav">
+            <a href="/" class="btn btn-secondary btn-sm">Back</a>
+            <form method="POST" action="/logout" style="display:inline">
+                <button type="submit" class="btn btn-secondary btn-sm">Sign out</button>
+            </form>
+        </nav>
+    </header>
+    <div class="admin-wrap">
+        <div class="card">
+            <div class="card-header">
+                <h2>Users</h2>
+                <button class="btn btn-sm" id="add-user-btn">Add user</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="user-tbody">
+                    <tr><td colspan="4" class="empty">Loading&hellip;</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h2>All files</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Preview</th>
+                        <th>File</th>
+                        <th>Uploaded by</th>
+                        <th>When</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="files-tbody">
+                    <tr><td colspan="5" class="empty">Loading&hellip;</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add user</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <form id="create-user-form">
+                <div class="field">
+                    <label for="new-username">Username</label>
+                    <input type="text" id="new-username" required autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="new-password">Password</label>
+                    <input type="password" id="new-password" required autocomplete="new-password">
+                </div>
+                <div class="field">
+                    <label class="check-label">
+                        <input type="checkbox" id="new-is-admin">
+                        Admin user
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn">Create user</button>
+                    <div id="create-ok"  class="status-msg ok"></div>
+                    <div id="create-err" class="status-msg err"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

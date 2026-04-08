@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bootcamp.uploadName" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "bootcamp.uploadSelectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "bootcamp.uploadSelectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: upload
+          image: "{{ .Values.upload.image.repository }}:{{ .Values.upload.image.tag }}"
+          imagePullPolicy: {{ .Values.upload.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: UPLOAD_PRESETADMINTOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: UPLOAD_ADMIN_TOKEN
+            - name: UPLOAD_SCHEME
+              value: "http"
+            - name: UPLOAD_DATAPATH
+              value: /var/lib/upload
+            {{- with .Values.upload.ttl }}
+            - name: UPLOAD_TTL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.upload.maxUploadBytes }}
+            - name: UPLOAD_MAXUPLOADBYTES
+              value: {{ . | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/upload
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.upload.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "bootcamp.uploadName" . }}

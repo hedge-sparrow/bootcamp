@@ -1,0 +1,8 @@
+apiVersion: embeddedcluster.replicated.com/v1beta1
+kind: Config
+metadata:
+  name: bootcamp
+spec:
+  # Run 'replicated embedded-cluster versions' to find the latest version
+  # Replace with actual version
+  version: "2.x.x+k8s-1.30"

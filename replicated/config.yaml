@@ -1,0 +1,58 @@
+apiVersion: kots.io/v1beta1
+kind: Config
+metadata:
+  name: bootcamp-config
+spec:
+  groups:
+    - name: authentication
+      title: Authentication
+      items:
+        - name: upload_admin_token
+          type: password
+          title: Upload Service Admin Token
+          help_text: >-
+            The preset admin token for the upload service. Must match the token
+            configured in the upload service deployment.
+          required: true
+
+    - name: storage
+      title: Storage
+      items:
+        - name: postgres_storage_size
+          type: text
+          title: Database Storage Size
+          default: "5Gi"
+          help_text: >-
+            Size of the PersistentVolumeClaim for the PostgreSQL cluster
+            (e.g. 5Gi, 20Gi).
+          required: true
+
+        - name: upload_storage_size
+          type: text
+          title: File Storage Size
+          default: "10Gi"
+          help_text: >-
+            Size of the PersistentVolumeClaim for uploaded files
+            (e.g. 10Gi, 100Gi).
+          required: true
+
+    - name: upload_settings
+      title: Upload Settings
+      items:
+        - name: upload_ttl
+          type: text
+          title: File TTL
+          default: ""
+          help_text: >-
+            How long uploaded files are retained before automatic deletion
+            (e.g. 24h, 7d). Leave empty to keep files indefinitely.
+          required: false
+
+        - name: upload_max_bytes
+          type: text
+          title: Maximum Upload Size
+          default: ""
+          help_text: >-
+            Maximum file upload size in bytes. Leave empty to use the default
+            (2 GiB).
+          required: false

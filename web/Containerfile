@@ -1,0 +1,9 @@
+from --platform=$BUILDPLATFORM golang:alpine as builder
+ARG TARGETOS TARGETARCH
+workdir /opt
+copy . .
+run GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -o webapp ./cmd/server
+
+from scratch
+copy --from=builder /opt/webapp /webapp
+entrypoint ["/webapp"]

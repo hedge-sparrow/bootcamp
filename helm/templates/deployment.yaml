@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bootcamp.fullname" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bootcamp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bootcamp.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: BIND_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: BIND_ADDRESS
+            - name: UPLOAD_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: UPLOAD_SERVICE_URL
+            - name: COOKIE_SECURE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: COOKIE_SECURE
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bootcamp.pgClusterName" . }}-app
+                  key: uri
+            - name: UPLOAD_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: UPLOAD_ADMIN_TOKEN
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

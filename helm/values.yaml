@@ -1,0 +1,81 @@
+replicaCount: 1
+
+image:
+  repository: bootcamp/web
+  pullPolicy: IfNotPresent
+  # Overrides the image tag; defaults to Chart appVersion.
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+config:
+  bindAddress: ":8080"
+  # Defaults to the internal upload service URL derived from the release name.
+  # Override only if pointing at an external upload service.
+  uploadServiceURL: ""
+  cookieSecure: "true"
+
+# Sensitive values — override via --set or a separate values file; never commit real values.
+secrets:
+  uploadAdminToken: ""
+
+# CloudNativePG Postgres cluster
+postgres:
+  instances: 1
+  database: bootcamp
+  user: bootcamp
+  storage:
+    size: 5Gi
+    # storageClass: ""
+
+# Upload service
+upload:
+  image:
+    repository: codeberg.org/sparrow/upload
+    tag: "v1.1.1"
+    pullPolicy: IfNotPresent
+  # File TTL — empty string disables expiry.
+  ttl: ""
+  # Max upload size in bytes (default 2 GiB).
+  maxUploadBytes: ""
+  storage:
+    size: 10Gi
+    # storageClass: ""
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      memory: 64Mi
+      cpu: 50m
+
+resources:
+  limits:
+    memory: 256Mi
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  # CPU limits are intentionally omitted — they cause throttling without benefit.
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Values passed to the cloudnative-pg operator subchart.
+# See https://cloudnative-pg.github.io/charts for available options.
+cloudnative-pg: {}
