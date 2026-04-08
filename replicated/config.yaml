@@ -15,8 +15,31 @@ spec:
             configured in the upload service deployment.
           required: true
 
+    - name: database
+      title: Database
+      items:
+        - name: postgres_type
+          type: radio
+          title: PostgreSQL
+          required: true
+          default: internal
+          items:
+            - name: internal
+              title: "Embedded (CloudNativePG)"
+            - name: external
+              title: "External PostgreSQL"
+        - name: external_database_url
+          type: password
+          title: PostgreSQL Connection URL
+          help_text: >-
+            Connection URL for the external PostgreSQL instance
+            (e.g. postgres://user:pass@host:5432/db).
+          required: true
+          when: 'repl{{ ConfigOptionEquals "postgres_type" "external" }}'
+
     - name: storage
       title: Storage
+      when: 'repl{{ ConfigOptionEquals "postgres_type" "internal" }}'
       items:
         - name: postgres_storage_size
           type: text
