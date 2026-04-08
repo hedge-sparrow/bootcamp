@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of web application replicas."
+    },
+    "nameOverride": {
+      "type": "string"
+    },
+    "fullnameOverride": {
+      "type": "string"
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string",
+          "description": "Overrides the image tag. Defaults to Chart appVersion when empty."
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["IfNotPresent", "Always", "Never"]
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bindAddress": {
+          "type": "string",
+          "description": "Address for the web server to listen on, e.g. :8080.",
+          "pattern": "^(.*)?:[0-9]+$"
+        },
+        "uploadServiceURL": {
+          "type": "string",
+          "description": "Base URL of the upload service. Defaults to the internal service URL when empty."
+        },
+        "cookieSecure": {
+          "type": "string",
+          "enum": ["true", "false"],
+          "description": "Set to false only when running without TLS (e.g. local development)."
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "uploadAdminToken": {
+          "type": "string",
+          "description": "Preset admin token for the upload service."
+        },
+        "databaseURL": {
+          "type": "string",
+          "description": "PostgreSQL connection URL (e.g. postgres://user:pass@host:5432/db). Required when postgres.internal is false."
+        }
+      }
+    },
+    "postgres": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "internal": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, deploys a CloudNativePG cluster. When false, an external PostgreSQL URL must be provided via secrets.databaseURL."
+        },
+        "instances": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of CloudNativePG cluster instances."
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1
+        },
+        "user": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["size"],
+          "properties": {
+            "size": {
+              "$ref": "#/$defs/k8sQuantity"
+            },
+            "storageClass": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "upload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repository", "tag"],
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["IfNotPresent", "Always", "Never"]
+            }
+          }
+        },
+        "ttl": {
+          "type": "string",
+          "pattern": "^([0-9]+(ns|us|µs|ms|s|m|h))+$|^$",
+          "description": "File retention duration (e.g. 24h, 7d). Empty falls back to the upload service default (24h)."
+        },
+        "maxUploadBytes": {
+          "type": ["string", "integer"],
+          "pattern": "^[0-9]*$",
+          "description": "Maximum upload size in bytes. Empty falls back to the upload service default (2 GiB)."
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["size"],
+          "properties": {
+            "size": {
+              "$ref": "#/$defs/k8sQuantity"
+            },
+            "storageClass": {
+              "type": "string"
+            }
+          }
+        },
+        "resources": {
+          "$ref": "#/$defs/resourceRequirements"
+        }
+      }
+    },
+    "resources": {
+      "$ref": "#/$defs/resourceRequirements"
+    },
+    "livenessProbe": {
+      "$ref": "#/$defs/httpProbe"
+    },
+    "readinessProbe": {
+      "$ref": "#/$defs/httpProbe"
+    },
+    "cloudnative-pg": {
+      "type": "object",
+      "description": "Values passed through to the cloudnative-pg operator subchart."
+    }
+  },
+  "if": {
+    "properties": {
+      "postgres": {
+        "properties": {
+          "internal": { "const": false }
+        },
+        "required": ["internal"]
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "secrets": {
+        "required": ["databaseURL"],
+        "properties": {
+          "databaseURL": {
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "k8sQuantity": {
+      "type": "string",
+      "pattern": "^[0-9]+(\\.[0-9]+)?(Ki|Mi|Gi|Ti|Pi|Ei|k|M|G|T|P|E|m)?$",
+      "description": "A Kubernetes resource quantity, e.g. 5Gi, 512Mi, 100m."
+    },
+    "resourceRequirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cpu": { "$ref": "#/$defs/k8sQuantity" },
+            "memory": { "$ref": "#/$defs/k8sQuantity" }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cpu": { "$ref": "#/$defs/k8sQuantity" },
+            "memory": { "$ref": "#/$defs/k8sQuantity" }
+          }
+        }
+      }
+    },
+    "httpProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "httpGet": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "port"],
+          "properties": {
+            "path": { "type": "string" },
+            "port": { "type": ["string", "integer"] }
+          }
+        },
+        "initialDelaySeconds": { "type": "integer", "minimum": 0 },
+        "periodSeconds": { "type": "integer", "minimum": 1 },
+        "timeoutSeconds": { "type": "integer", "minimum": 1 },
+        "failureThreshold": { "type": "integer", "minimum": 1 },
+        "successThreshold": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

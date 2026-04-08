@@ -20,9 +20,14 @@ config:
 # Sensitive values — override via --set or a separate values file; never commit real values.
 secrets:
   uploadAdminToken: ""
+  # PostgreSQL connection URL. Required when postgres.internal is false.
+  databaseURL: ""
 
 # CloudNativePG Postgres cluster
 postgres:
+  # Set to false to use an external PostgreSQL instance.
+  internal: true
+  # The following fields are only used when internal is true.
   instances: 1
   database: bootcamp
   user: bootcamp

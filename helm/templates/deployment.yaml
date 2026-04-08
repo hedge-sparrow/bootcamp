@@ -39,10 +39,17 @@ spec:
                   name: {{ include "bootcamp.fullname" . }}
                   key: COOKIE_SECURE
             - name: DATABASE_URL
+              {{- if .Values.postgres.internal }}
               valueFrom:
                 secretKeyRef:
                   name: {{ include "bootcamp.pgClusterName" . }}-app
                   key: uri
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: DATABASE_URL
+              {{- end }}
             - name: UPLOAD_ADMIN_TOKEN
               valueFrom:
                 secretKeyRef:
