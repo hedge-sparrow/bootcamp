@@ -16,7 +16,22 @@ spec:
     upload:
       storage:
         size: repl{{ ConfigOption "upload_storage_size" }}
+    ingress:
+      host: repl{{ ConfigOption "hostname" }}
+      tls: repl{{ ConfigOptionEquals "tls_enabled" "1" }}
   optionalValues:
+    - when: 'repl{{ ConfigOptionEquals "tls_enabled" "1" }}'
+      recursiveMerge: true
+      values:
+        traefik:
+          ports:
+            web:
+              redirectTo:
+                port: websecure
+          certificatesResolvers:
+            letsencrypt:
+              acme:
+                email: repl{{ ConfigOption "acme_email" }}
     - when: 'repl{{ ConfigOptionEquals "postgres_type" "external" }}'
       recursiveMerge: true
       values:

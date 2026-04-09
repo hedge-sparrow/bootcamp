@@ -79,3 +79,31 @@ spec:
             Maximum file upload size in bytes. Leave empty to use the default
             (2 GiB).
           required: false
+
+    - name: ingress
+      title: Ingress
+      items:
+        - name: hostname
+          type: text
+          title: Hostname
+          help_text: >-
+            The hostname the application will be served on (e.g. files.example.com).
+            Must have a DNS A record pointing at the cluster's public IP.
+          required: true
+
+        - name: tls_enabled
+          type: bool
+          title: Enable TLS
+          default: "0"
+          help_text: >-
+            Enable automatic TLS via Let's Encrypt. Requires ports 80 and 443 to
+            be publicly accessible from the internet.
+
+        - name: acme_email
+          type: text
+          title: Let's Encrypt Email
+          help_text: >-
+            Email address used for Let's Encrypt certificate notifications and
+            account registration.
+          required: true
+          when: 'repl{{ ConfigOptionEquals "tls_enabled" "1" }}'

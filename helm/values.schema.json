@@ -179,9 +179,34 @@
     "readinessProbe": {
       "$ref": "#/$defs/httpProbe"
     },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "host": {
+          "type": "string",
+          "description": "Hostname the application is served on."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Enable TLS via the Traefik letsencrypt cert resolver."
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Extra annotations merged onto the Ingress resource."
+        }
+      }
+    },
     "cloudnative-pg": {
       "type": "object",
       "description": "Values passed through to the cloudnative-pg operator subchart."
+    },
+    "traefik": {
+      "type": "object",
+      "description": "Values passed through to the Traefik ingress controller subchart."
     }
   },
   "if": {

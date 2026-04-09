@@ -25,7 +25,7 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
-            - name: UPLOAD_PRESETADMINTOKEN
+            - name: UPLOAD_PRESETADMINPASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "bootcamp.fullname" . }}

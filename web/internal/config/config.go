@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"strconv"
@@ -22,7 +23,7 @@ func Load() (*Config, error) {
 		BindAddress:      getenv("BIND_ADDRESS", ":8080"),
 		DatabaseURL:      os.Getenv("DATABASE_URL"),
 		UploadServiceURL: strings.TrimRight(os.Getenv("UPLOAD_SERVICE_URL"), "/"),
-		UploadAdminToken: os.Getenv("UPLOAD_ADMIN_TOKEN"),
+		UploadAdminToken: base64.StdEncoding.EncodeToString([]byte("admin:" + os.Getenv("UPLOAD_ADMIN_TOKEN"))),
 		CookieSecure:     getenvBool("COOKIE_SECURE", true),
 		SessionDuration:  24 * time.Hour,
 	}

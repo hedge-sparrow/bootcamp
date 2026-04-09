@@ -2,5 +2,8 @@ dependencies:
 - name: cloudnative-pg
   repository: https://cloudnative-pg.github.io/charts
   version: 0.22.0
-digest: sha256:9d94dd1e5951d05bbf864615195a623a09295d495996e8d37d15f339772fb730
-generated: "2026-04-08T12:14:46.479522+01:00"
+- name: traefik
+  repository: https://helm.traefik.io/traefik
+  version: 33.0.0
+digest: sha256:ebea70ce6415d75e44d76f934081b08b1737c4695546f9435a947570f10f0c57
+generated: "2026-04-08T12:49:46.828714587Z"

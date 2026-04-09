@@ -1,9 +1,9 @@
 package upload
 
 import (
-	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -102,7 +102,7 @@ func (c *Client) UploadFile(ctx context.Context, token string, r *http.Request) 
 
 // ListFiles returns the files visible to the given token.
 func (c *Client) ListFiles(ctx context.Context, token string) ([]FileInfo, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/files/", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/files?json", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -118,30 +118,23 @@ func (c *Client) ListFiles(ctx context.Context, token string) ([]FileInfo, error
 		return nil, fmt.Errorf("list files: status %d", resp.StatusCode)
 	}
 
-	var files []FileInfo
-	scanner := bufio.NewScanner(resp.Body)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			continue
-		}
-		// Format: {filename} {unix_ts} {full_url} [keyname if admin]
-		parts := strings.Fields(line)
-		if len(parts) < 3 {
-			continue
-		}
-		var ts int64
-		fmt.Sscanf(parts[1], "%d", &ts)
-		fi := FileInfo{
-			Name:       parts[0],
-			UploadedAt: ts,
-		}
-		if len(parts) >= 4 {
-			fi.UploadedBy = parts[3]
-		}
-		files = append(files, fi)
+	var raw []struct {
+		FileName string `json:"fileName"`
+		Ttl      int64  `json:"ttl"`
+		User     string `json:"user"`
 	}
-	return files, scanner.Err()
+	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
+		return nil, fmt.Errorf("list files: decode: %w", err)
+	}
+	files := make([]FileInfo, len(raw))
+	for i, f := range raw {
+		files[i] = FileInfo{
+			Name:       f.FileName,
+			UploadedAt: f.Ttl,
+			UploadedBy: f.User,
+		}
+	}
+	return files, nil
 }
 
 // ProxyDownload forwards a file download from the upload service to the client.
@@ -192,7 +185,7 @@ func (c *Client) DeleteFile(ctx context.Context, token, filename string) error {
 // CreateToken provisions a new token in the upload service and returns the raw token string.
 func (c *Client) CreateToken(ctx context.Context, name string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut,
-		c.baseURL+"/admin/user/"+url.PathEscape(name), nil)
+		c.baseURL+"/users/"+url.PathEscape(name), nil)
 	if err != nil {
 		return "", err
 	}
@@ -214,7 +207,7 @@ func (c *Client) CreateToken(ctx context.Context, name string) (string, error) {
 // DeleteToken revokes a token in the upload service.
 func (c *Client) DeleteToken(ctx context.Context, name string) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete,
-		c.baseURL+"/admin/user/"+url.PathEscape(name), nil)
+		c.baseURL+"/users/"+url.PathEscape(name), nil)
 	if err != nil {
 		return err
 	}
