@@ -16,6 +16,7 @@ type Config struct {
 	UploadAdminToken string
 	CookieSecure     bool
 	SessionDuration  time.Duration
+	ReplicatedSDKURL string
 }
 
 func Load() (*Config, error) {
@@ -26,6 +27,7 @@ func Load() (*Config, error) {
 		UploadAdminToken: base64.StdEncoding.EncodeToString([]byte("admin:" + os.Getenv("UPLOAD_ADMIN_TOKEN"))),
 		CookieSecure:     getenvBool("COOKIE_SECURE", true),
 		SessionDuration:  24 * time.Hour,
+		ReplicatedSDKURL: getenv("REPLICATED_SDK_URL", "http://replicated:3000"),
 	}
 	if c.DatabaseURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL is required")

@@ -1,10 +1,10 @@
 replicaCount: 1
 
 image:
-  repository: bootcamp/web
+  repository: ghcr.io/ashjones-replicated/bootcamp
   pullPolicy: IfNotPresent
   # Overrides the image tag; defaults to Chart appVersion.
-  tag: ""
+  tag: "main"
 
 service:
   type: ClusterIP
@@ -16,6 +16,8 @@ config:
   # Override only if pointing at an external upload service.
   uploadServiceURL: ""
   cookieSecure: "true"
+  # Override only if the Replicated SDK is not running at the default service address.
+  replicatedSDKURL: ""
 
 # Sensitive values — override via --set or a separate values file; never commit real values.
 secrets:

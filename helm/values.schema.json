@@ -65,6 +65,10 @@
           "type": "string",
           "enum": ["true", "false"],
           "description": "Set to false only when running without TLS (e.g. local development)."
+        },
+        "replicatedSDKURL": {
+          "type": "string",
+          "description": "Base URL of the Replicated SDK service. Defaults to http://replicated:3000 when empty."
         }
       }
     },
@@ -199,6 +203,10 @@
           "description": "Extra annotations merged onto the Ingress resource."
         }
       }
+    },
+    "replicated": {
+      "type": "object",
+      "description": "Values passed through to the Replicated SDK subchart."
     },
     "cloudnative-pg": {
       "type": "object",

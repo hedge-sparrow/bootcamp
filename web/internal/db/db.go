@@ -64,6 +64,12 @@ func (d *DB) HasAnyUsers(ctx context.Context) (bool, error) {
 	return n > 0, err
 }
 
+func (d *DB) CountUsers(ctx context.Context) (int, error) {
+	var n int
+	err := d.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM users`).Scan(&n)
+	return n, err
+}
+
 func (d *DB) Ping(ctx context.Context) error {
 	return d.db.PingContext(ctx)
 }

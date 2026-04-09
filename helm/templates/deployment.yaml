@@ -68,6 +68,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "bootcamp.fullname" . }}
                   key: UPLOAD_ADMIN_TOKEN
+            - name: REPLICATED_SDK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "bootcamp.fullname" . }}
+                  key: REPLICATED_SDK_URL
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

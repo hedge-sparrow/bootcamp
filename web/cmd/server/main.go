@@ -14,6 +14,7 @@ import (
 	"bootcamp/web/internal/config"
 	"bootcamp/web/internal/db"
 	"bootcamp/web/internal/handlers"
+	"bootcamp/web/internal/metrics"
 	"bootcamp/web/internal/upload"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -63,6 +64,22 @@ func main() {
 			}
 		}
 	}()
+
+	if cfg.ReplicatedSDKURL != "" {
+		reporter := metrics.NewReporter(cfg.ReplicatedSDKURL, database, uploadClient, logger)
+		go func() {
+			if err := reporter.Report(context.Background()); err != nil {
+				logger.Warn("metrics report", "err", err)
+			}
+			t := time.NewTicker(time.Hour)
+			defer t.Stop()
+			for range t.C {
+				if err := reporter.Report(context.Background()); err != nil {
+					logger.Warn("metrics report", "err", err)
+				}
+			}
+		}()
+	}
 
 	logger.Info("listening", "addr", cfg.BindAddress)
 	if err := http.ListenAndServe(cfg.BindAddress, mux); err != nil {

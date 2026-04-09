@@ -47,11 +47,13 @@ spec:
           maxUploadBytes: repl{{ ConfigOption "upload_max_bytes" }}
   builder:
     image:
-      repository: bootcamp/web
-      tag: "0.1.0"
+      repository: ghcr.io/ashjones-replicated/bootcamp
+      tag: "main"
     upload:
       image:
         repository: codeberg.org/sparrow/upload
-        tag: "v1.1.1"
+        tag: "v2.0.0"
     postgres:
       instances: 1
+    replicated:
+      replicaCount: 1

@@ -137,6 +137,31 @@ func (c *Client) ListFiles(ctx context.Context, token string) ([]FileInfo, error
 	return files, nil
 }
 
+// CountAllFiles returns the total number of files across all users (requires admin token).
+func (c *Client) CountAllFiles(ctx context.Context) (int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/files?json&all", nil)
+	if err != nil {
+		return 0, err
+	}
+	req.Header.Set("Authentication", c.adminToken)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return 0, fmt.Errorf("count files: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("count files: status %d", resp.StatusCode)
+	}
+
+	var files []json.RawMessage
+	if err := json.NewDecoder(resp.Body).Decode(&files); err != nil {
+		return 0, fmt.Errorf("count files: decode: %w", err)
+	}
+	return len(files), nil
+}
+
 // ProxyDownload forwards a file download from the upload service to the client.
 func (c *Client) ProxyDownload(ctx context.Context, token, filename string, w http.ResponseWriter, r *http.Request) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/"+filename, nil)
