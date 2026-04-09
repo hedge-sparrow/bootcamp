@@ -90,6 +90,14 @@ readinessProbe:
   timeoutSeconds: 3
   failureThreshold: 3
 
+# Values passed to the Replicated SDK subchart.
+# See https://docs.replicated.com/vendor/replicated-sdk-customizing for all options.
+# license, channel, and release metadata are injected automatically by Replicated at install time.
+replicated:
+  statusInformers:
+    - deployment/bootcamp
+    - deployment/bootcamp-upload
+
 # Values passed to the cloudnative-pg operator subchart.
 # See https://cloudnative-pg.github.io/charts for available options.
 cloudnative-pg: {}

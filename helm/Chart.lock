@@ -5,5 +5,8 @@ dependencies:
 - name: traefik
   repository: https://helm.traefik.io/traefik
   version: 33.0.0
-digest: sha256:ebea70ce6415d75e44d76f934081b08b1737c4695546f9435a947570f10f0c57
-generated: "2026-04-08T12:49:46.828714587Z"
+- name: replicated
+  repository: oci://registry.replicated.com/library
+  version: 1.19.1
+digest: sha256:798d22d1adfacb3f525f557d21e69d139022a0ce4180bd2ebb6c12dbefadd000
+generated: "2026-04-09T15:24:52.844987+01:00"
