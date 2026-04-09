@@ -38,10 +38,12 @@ spec:
         secrets:
           databaseURL: repl{{ ConfigOption "external_database_url" }}
     - when: 'repl{{ ConfigOptionNotEquals "upload_ttl" "" }}'
+      recursiveMerge: true
       values:
         upload:
           ttl: repl{{ ConfigOption "upload_ttl" }}
     - when: 'repl{{ ConfigOptionNotEquals "upload_max_bytes" "" }}'
+      recursiveMerge: true
       values:
         upload:
           maxUploadBytes: repl{{ ConfigOption "upload_max_bytes" }}
