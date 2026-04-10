@@ -92,7 +92,7 @@ jobs:
             echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           else
             echo "channel=Unstable"                                    >> "$GITHUB_OUTPUT"
-            echo "version=main-$(git rev-parse --short HEAD)"          >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-$(git rev-parse --short HEAD)"           >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create and promote release
