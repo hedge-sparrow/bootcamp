@@ -2,36 +2,38 @@ apiVersion: kots.io/v1beta2
 kind: HelmChart
 metadata:
   name: traefik
+  annotations:
+    kots.io/exclude: 'repl{{ ConfigOptionEquals "ingress_type" "nodeport" }}'
 spec:
   chart:
     name: traefik
     chartVersion: 33.0.0
   weight: 1
   values:
+    providers:
+      kubernetesGateway:
+        enabled: true
     ingressClass:
-      enabled: true
-      isDefaultClass: true
+      enabled: false
+    gateway:
+      enabled: false
     service:
       type: NodePort
     ports:
       web:
-        hostPort: 80
+        nodePort: 80
       websecure:
-        hostPort: 443
-    # ports.web.redirectTo is intentionally absent from defaults — it redirects ALL
-    # HTTP traffic to HTTPS cluster-wide. Enable it only when TLS is configured.
+        nodePort: 443
+    # ports.web.redirectTo is intentionally absent — HTTP→HTTPS redirect is
+    # handled by the HTTPRoute RequestRedirect filter when ingress_type=traefik_https.
     persistence:
       enabled: true
       size: 128Mi
       path: /data
   optionalValues:
-    - when: 'repl{{ ConfigOptionEquals "tls_enabled" "1" }}'
+    - when: 'repl{{ ConfigOptionEquals "ingress_type" "traefik_https" }}'
       recursiveMerge: true
       values:
-        ports:
-          web:
-            redirectTo:
-              port: websecure
         certificatesResolvers:
           letsencrypt:
             acme:

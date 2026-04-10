@@ -17,8 +17,9 @@ spec:
           type: password
           title: Admin Password
           help_text: >-
-            Password for the built-in admin account. Auto-generated if left empty,
-            but the generated password will only appear in pod logs on first start.
+            Password for the built-in admin account, set once on first install.
+            After installation this can only be changed from within the application.
+          required: true
           default: repl{{ RandomString 32 }}
 
     - name: database
@@ -89,6 +90,19 @@ spec:
     - name: ingress
       title: Ingress
       items:
+        - name: ingress_type
+          type: radio
+          title: Access Method
+          default: traefik_http
+          required: true
+          items:
+            - name: traefik_http
+              title: "Traefik (HTTP)"
+            - name: traefik_https
+              title: "Traefik (HTTPS, Let's Encrypt)"
+            - name: nodeport
+              title: "NodePort (no ingress controller)"
+
         - name: hostname
           type: text
           title: Hostname
@@ -96,14 +110,16 @@ spec:
             The hostname the application will be served on (e.g. files.example.com).
             Must have a DNS A record pointing at the cluster's public IP.
           required: true
+          when: 'repl{{ ConfigOptionNotEquals "ingress_type" "nodeport" }}'
 
-        - name: tls_enabled
-          type: bool
-          title: Enable TLS
-          default: "0"
+        - name: nodeport_port
+          type: text
+          title: Port
           help_text: >-
-            Enable automatic TLS via Let's Encrypt. Requires ports 80 and 443 to
-            be publicly accessible from the internet.
+            NodePort to expose the web UI on (e.g. 80 or 30080). Leave empty for
+            Kubernetes to auto-assign a port from the cluster's NodePort range.
+          required: false
+          when: 'repl{{ ConfigOptionEquals "ingress_type" "nodeport" }}'
 
         - name: acme_email
           type: text
@@ -112,4 +128,4 @@ spec:
             Email address used for Let's Encrypt certificate notifications and
             account registration.
           required: true
-          when: 'repl{{ ConfigOptionEquals "tls_enabled" "1" }}'
+          when: 'repl{{ ConfigOptionEquals "ingress_type" "traefik_https" }}'

@@ -18,10 +18,22 @@ spec:
     upload:
       storage:
         size: repl{{ ConfigOption "upload_storage_size" }}
-    ingress:
+    config:
+      cookieSecure: '{{repl if ConfigOptionEquals "ingress_type" "traefik_https" }}true{{repl else }}false{{repl end }}'
+    gateway:
       host: repl{{ ConfigOption "hostname" }}
-      tls: repl{{ ConfigOptionEquals "tls_enabled" "1" }}
+      tls: repl{{ ConfigOptionEquals "ingress_type" "traefik_https" }}
   optionalValues:
+    - when: 'repl{{ ConfigOptionEquals "ingress_type" "nodeport" }}'
+      recursiveMerge: true
+      values:
+        service:
+          type: NodePort
+    - when: 'repl{{ and (ConfigOptionEquals "ingress_type" "nodeport") (ConfigOptionNotEquals "nodeport_port" "") }}'
+      recursiveMerge: true
+      values:
+        service:
+          nodePort: repl{{ ConfigOption "nodeport_port" }}
     - when: 'repl{{ ConfigOptionEquals "postgres_type" "external" }}'
       recursiveMerge: true
       values:
@@ -40,7 +52,7 @@ spec:
   builder:
     image:
       repository: ghcr.io/ashjones-replicated/bootcamp
-      tag: "main"
+      tag: "sha-90eaac8"
     upload:
       image:
         repository: codeberg.org/sparrow/upload
