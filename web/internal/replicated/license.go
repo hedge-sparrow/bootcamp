@@ -11,10 +11,12 @@ import (
 
 // licenseField mirrors the per-field object returned by the SDK's
 // GET /api/v1/license/fields endpoint.
+// Value is any because the SDK encodes it as the native JSON type
+// (boolean, number, or string) rather than always quoting it as a string.
 type licenseField struct {
 	Name      string `json:"name"`
 	Title     string `json:"title"`
-	Value     string `json:"value"`
+	Value     any    `json:"value"`
 	ValueType string `json:"valueType"`
 }
 
@@ -80,5 +82,12 @@ func (c *LicenseClient) AllowUserCreation(ctx context.Context) (bool, error) {
 	if !ok {
 		return true, nil
 	}
-	return f.Value == "true", nil
+	switch v := f.Value.(type) {
+	case bool:
+		return v, nil
+	case string:
+		return v == "true", nil
+	default:
+		return fmt.Sprintf("%v", f.Value) == "true", nil
+	}
 }
