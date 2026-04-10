@@ -2,12 +2,11 @@ apiVersion: kots.io/v1beta2
 kind: HelmChart
 metadata:
   name: traefik
-  annotations:
-    kots.io/exclude: 'repl{{ ConfigOptionEquals "ingress_type" "nodeport" }}'
 spec:
   chart:
     name: traefik
     chartVersion: 33.0.0
+  exclude: 'repl{{ ConfigOptionEquals "ingress_type" "nodeport" }}'
   weight: 1
   values:
     providers:
