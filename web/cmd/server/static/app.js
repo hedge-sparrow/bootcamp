@@ -28,6 +28,21 @@ function timeAgo(unixSec) {
     return Math.floor(s / 86400) + 'd ago';
 }
 
+/* ── Update banner ──────────────────────────────────── */
+
+const updateBanner = document.getElementById('update-banner');
+if (updateBanner) {
+    fetch('/api/updates')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.available) return;
+            updateBanner.querySelector('.update-banner-msg').textContent =
+                data.version ? `Update available: v${data.version}` : 'An update is available.';
+            updateBanner.hidden = false;
+        })
+        .catch(() => {});
+}
+
 /* ── Index page ─────────────────────────────────────── */
 
 let currentUsername = '';

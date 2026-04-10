@@ -1,0 +1,47 @@
+{{- if ne .Values.service.type "NodePort" }}
+{{- if .Values.gateway.tls }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "bootcamp.fullname" . }}-redirect
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - name: {{ include "bootcamp.fullname" . }}
+      sectionName: web
+  {{- with .Values.gateway.host }}
+  hostnames:
+    - {{ . | quote }}
+  {{- end }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "bootcamp.fullname" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - name: {{ include "bootcamp.fullname" . }}
+      {{- if .Values.gateway.tls }}
+      sectionName: websecure
+      {{- else }}
+      sectionName: web
+      {{- end }}
+  {{- with .Values.gateway.host }}
+  hostnames:
+    - {{ . | quote }}
+  {{- end }}
+  rules:
+    - backendRefs:
+        - name: {{ include "bootcamp.fullname" . }}
+          port: {{ .Values.service.port }}
+{{- end }}

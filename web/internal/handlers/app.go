@@ -7,16 +7,18 @@ import (
 
 	"bootcamp/web/internal/config"
 	"bootcamp/web/internal/db"
+	"bootcamp/web/internal/replicated"
 	"bootcamp/web/internal/upload"
 )
 
 // App holds application dependencies and registers HTTP routes.
 type App struct {
-	DB     *db.DB
-	Upload *upload.Client
-	Cfg    *config.Config
-	Files  fs.FS
-	Log    *slog.Logger
+	DB      *db.DB
+	Upload  *upload.Client
+	Cfg     *config.Config
+	Files   fs.FS
+	Log     *slog.Logger
+	Updates *replicated.UpdatesClient // nil when SDK is not configured
 }
 
 func (a *App) RegisterRoutes(mux *http.ServeMux) {
@@ -35,6 +37,7 @@ func (a *App) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /upload", a.requireAuth(http.HandlerFunc(a.handleUpload)))
 	mux.Handle("GET /api/files", a.requireAuth(http.HandlerFunc(a.handleListFiles)))
 	mux.Handle("GET /api/me", a.requireAuth(http.HandlerFunc(a.handleMe)))
+	mux.Handle("GET /api/updates", a.requireAuth(http.HandlerFunc(a.handleUpdates)))
 	mux.Handle("GET /files/{name}", a.requireAuth(http.HandlerFunc(a.handleFileProxy)))
 	mux.Handle("DELETE /files/{name}", a.requireAuth(http.HandlerFunc(a.handleFileDelete)))
 	mux.Handle("POST /api/password", a.requireAuth(http.HandlerFunc(a.handleChangePassword)))

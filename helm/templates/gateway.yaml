@@ -1,0 +1,28 @@
+{{- if ne .Values.service.type "NodePort" }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "bootcamp.fullname" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+  {{- if .Values.gateway.tls }}
+  annotations:
+    traefik.io/gateway.certResolver.websecure: letsencrypt
+  {{- end }}
+spec:
+  gatewayClassName: traefik
+  listeners:
+    - name: web
+      port: 8000
+      protocol: HTTP
+    {{- if .Values.gateway.tls }}
+    - name: websecure
+      port: 8443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: {{ include "bootcamp.fullname" . }}-tls
+    {{- end }}
+{{- end }}

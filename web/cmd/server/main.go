@@ -15,6 +15,7 @@ import (
 	"bootcamp/web/internal/db"
 	"bootcamp/web/internal/handlers"
 	"bootcamp/web/internal/metrics"
+	"bootcamp/web/internal/replicated"
 	"bootcamp/web/internal/upload"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -66,6 +67,7 @@ func main() {
 	}()
 
 	if cfg.ReplicatedSDKURL != "" {
+		app.Updates = replicated.NewUpdatesClient(cfg.ReplicatedSDKURL)
 		reporter := metrics.NewReporter(cfg.ReplicatedSDKURL, database, uploadClient, logger)
 		go func() {
 			if err := reporter.Report(context.Background()); err != nil {

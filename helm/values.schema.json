@@ -45,6 +45,12 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 65535
+        },
+        "nodePort": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "NodePort value. Only used when service.type is NodePort. Null for auto-assignment."
         }
       }
     },
@@ -187,13 +193,10 @@
     "readinessProbe": {
       "$ref": "#/$defs/httpProbe"
     },
-    "ingress": {
+    "gateway": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "enabled": {
-          "type": "boolean"
-        },
         "host": {
           "type": "string",
           "description": "Hostname the application is served on."
@@ -201,10 +204,6 @@
         "tls": {
           "type": "boolean",
           "description": "Enable TLS via the Traefik letsencrypt cert resolver."
-        },
-        "annotations": {
-          "type": "object",
-          "description": "Extra annotations merged onto the Ingress resource."
         }
       }
     },
