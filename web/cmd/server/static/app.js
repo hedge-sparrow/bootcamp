@@ -198,7 +198,7 @@ if (createUserForm) {
 
     fetch('/api/admin/entitlements')
         .then(r => r.json())
-        .then(e => { addBtn.hidden = !e.allow_user_creation; })
+        .then(e => { if (e.allow_user_creation) addBtn.style.removeProperty('display'); })
         .catch(() => {});
 
     function openModal()  { overlay.hidden = false; document.getElementById('new-username').focus(); }
