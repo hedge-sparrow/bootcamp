@@ -10,6 +10,9 @@ echo "Image tag: $IMAGE_TAG"
 echo "Cleaning up old chart archives..."
 rm -f "$SCRIPT_DIR"/*.tgz
 
+echo "Updating Helm chart dependencies..."
+helm dependency update "$REPO_ROOT/helm"
+
 echo "Packaging bootcamp Helm chart (appVersion: $IMAGE_TAG)..."
 helm package "$REPO_ROOT/helm" --app-version "$IMAGE_TAG" --destination "$SCRIPT_DIR"
 
