@@ -20,14 +20,21 @@ type licenseField struct {
 	ValueType string `json:"valueType"`
 }
 
-// LicenseClient reads custom license field values from the Replicated
+// licenseInfo mirrors the response from GET /api/v1/license/info.
+type licenseInfo struct {
+	ExpiresAt string `json:"expiresAt"`
+}
+
+// LicenseClient reads license information from the Replicated
 // in-cluster SDK API. Results are cached for five minutes.
 type LicenseClient struct {
-	sdkURL   string
-	client   *http.Client
-	mu       sync.Mutex
-	cached   map[string]licenseField
-	cachedAt time.Time
+	sdkURL       string
+	client       *http.Client
+	mu           sync.Mutex
+	cached       map[string]licenseField
+	cachedAt     time.Time
+	cachedInfo   *licenseInfo
+	cachedInfoAt time.Time
 }
 
 func NewLicenseClient(sdkURL string) *LicenseClient {
@@ -68,6 +75,56 @@ func (c *LicenseClient) fields(ctx context.Context) (map[string]licenseField, er
 	c.cached = fields
 	c.cachedAt = time.Now()
 	return fields, nil
+}
+
+func (c *LicenseClient) info(ctx context.Context) (*licenseInfo, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.cachedInfo != nil && time.Since(c.cachedInfoAt) < 5*time.Minute {
+		return c.cachedInfo, nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.sdkURL+"/api/v1/license/info", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("sdk request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("sdk response: status %d", resp.StatusCode)
+	}
+
+	var info licenseInfo
+	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
+		return nil, fmt.Errorf("decode: %w", err)
+	}
+
+	c.cachedInfo = &info
+	c.cachedInfoAt = time.Now()
+	return &info, nil
+}
+
+// IsExpired reports whether the license has passed its expiry date.
+// Defaults to false when the SDK is unreachable or no expiry is set.
+func (c *LicenseClient) IsExpired(ctx context.Context) (bool, error) {
+	info, err := c.info(ctx)
+	if err != nil {
+		return false, err
+	}
+	if info.ExpiresAt == "" {
+		return false, nil
+	}
+	t, err := time.Parse(time.RFC3339, info.ExpiresAt)
+	if err != nil {
+		return false, fmt.Errorf("parse expiresAt: %w", err)
+	}
+	return time.Now().After(t), nil
 }
 
 // AllowUserCreation reports whether the license permits creating new users.

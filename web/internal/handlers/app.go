@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"bootcamp/web/internal/config"
 	"bootcamp/web/internal/db"
@@ -22,7 +23,28 @@ type App struct {
 	License *replicated.LicenseClient // nil when SDK is not configured
 }
 
-func (a *App) RegisterRoutes(mux *http.ServeMux) {
+// checkLicenseExpiry wraps a handler and serves the expired page for all
+// non-static, non-health requests when the license has passed its expiry date.
+func (a *App) checkLicenseExpiry(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if a.License != nil &&
+			!strings.HasPrefix(r.URL.Path, "/static/") &&
+			r.URL.Path != "/healthz" {
+			expired, err := a.License.IsExpired(r.Context())
+			if err != nil {
+				a.Log.Warn("license expiry check failed", "err", err)
+			}
+			if expired {
+				w.WriteHeader(http.StatusPaymentRequired)
+				serveTemplate(w, a.Files, "templates/expired.html")
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a *App) RegisterRoutes(mux *http.ServeMux) http.Handler {
 	// Static assets (CSS, JS)
 	sub, _ := fs.Sub(a.Files, "static")
 	mux.Handle("GET /static/", http.StripPrefix("/static", http.FileServer(http.FS(sub))))
@@ -50,4 +72,6 @@ func (a *App) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /api/admin/users", admin(http.HandlerFunc(a.handleCreateUser)))
 	mux.Handle("DELETE /api/admin/users/{id}", admin(http.HandlerFunc(a.handleDeleteUser)))
 	mux.Handle("GET /api/admin/entitlements", admin(http.HandlerFunc(a.handleEntitlements)))
+
+	return a.checkLicenseExpiry(mux)
 }

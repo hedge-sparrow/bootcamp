@@ -54,7 +54,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	app.RegisterRoutes(mux)
+	handler := app.RegisterRoutes(mux)
 
 	go func() {
 		t := time.NewTicker(time.Hour)
@@ -85,7 +85,7 @@ func main() {
 	}
 
 	logger.Info("listening", "addr", cfg.BindAddress)
-	if err := http.ListenAndServe(cfg.BindAddress, mux); err != nil {
+	if err := http.ListenAndServe(cfg.BindAddress, handler); err != nil {
 		logger.Error("server", "err", err)
 		os.Exit(1)
 	}
