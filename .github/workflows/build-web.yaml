@@ -88,10 +88,10 @@ jobs:
         id: vars
         run: |
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            echo "channel=stable"               >> "$GITHUB_OUTPUT"
+            echo "channel=Stable"                >> "$GITHUB_OUTPUT"
             echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           else
-            echo "channel=unstable"                                    >> "$GITHUB_OUTPUT"
+            echo "channel=Unstable"                                    >> "$GITHUB_OUTPUT"
             echo "version=main-$(git rev-parse --short HEAD)"          >> "$GITHUB_OUTPUT"
           fi
 
