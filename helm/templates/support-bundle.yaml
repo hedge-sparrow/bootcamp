@@ -1,0 +1,50 @@
+apiVersion: troubleshoot.sh/v1beta2
+kind: SupportBundle
+metadata:
+  name: {{ include "bootcamp.fullname" . }}
+  labels:
+    {{- include "bootcamp.labels" . | nindent 4 }}
+spec:
+  collectors:
+    - logs:
+        selector:
+          - app.kubernetes.io/name={{ include "bootcamp.name" . }}
+          - app.kubernetes.io/instance={{ .Release.Name }}
+        namespace: {{ .Release.Namespace }}
+        name: bootcamp
+        limits:
+          maxAge: 168h
+    - logs:
+        selector:
+          - app.kubernetes.io/name={{ include "bootcamp.name" . }}-upload
+          - app.kubernetes.io/instance={{ .Release.Name }}
+        namespace: {{ .Release.Namespace }}
+        name: upload
+        limits:
+          maxAge: 168h
+    {{- if .Values.postgres.internal }}
+    - logs:
+        selector:
+          - cnpg.io/cluster={{ include "bootcamp.pgClusterName" . }}
+        namespace: {{ .Release.Namespace }}
+        name: postgres
+        limits:
+          maxAge: 168h
+    {{- end }}
+  analyzers:
+    - clusterPodStatuses:
+        namespaces:
+          - {{ .Release.Namespace }}
+        outcomes:
+          - fail:
+              when: "== CrashLoopBackOff"
+              message: "Pod {{ "{{" }} .Namespace {{ "}}" }}/{{ "{{" }} .Name {{ "}}" }} is crash-looping"
+          - fail:
+              when: "== ImagePullBackOff"
+              message: "Pod {{ "{{" }} .Namespace {{ "}}" }}/{{ "{{" }} .Name {{ "}}" }} cannot pull its image"
+          - warn:
+              when: "!= Healthy"
+              message: "Pod {{ "{{" }} .Namespace {{ "}}" }}/{{ "{{" }} .Name {{ "}}" }} is not healthy: {{ "{{" }} .Status.Reason {{ "}}" }}"
+          - pass:
+              when: "== Healthy"
+              message: All pods are healthy
