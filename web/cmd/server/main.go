@@ -68,6 +68,7 @@ func main() {
 
 	if cfg.ReplicatedSDKURL != "" {
 		app.Updates = replicated.NewUpdatesClient(cfg.ReplicatedSDKURL)
+		app.License = replicated.NewLicenseClient(cfg.ReplicatedSDKURL)
 		reporter := metrics.NewReporter(cfg.ReplicatedSDKURL, database, uploadClient, logger)
 		go func() {
 			if err := reporter.Report(context.Background()); err != nil {

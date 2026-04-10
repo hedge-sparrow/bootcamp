@@ -52,7 +52,7 @@ spec:
   builder:
     image:
       repository: ghcr.io/ashjones-replicated/bootcamp
-      tag: "sha-90eaac8"
+      tag: "sha-89e59c6"
     upload:
       image:
         repository: codeberg.org/sparrow/upload

@@ -196,6 +196,16 @@ if (createUserForm) {
     const addBtn    = document.getElementById('add-user-btn');
     const closeBtn  = document.getElementById('modal-close');
 
+    fetch('/api/admin/entitlements')
+        .then(r => r.json())
+        .then(e => {
+            if (!e.allow_user_creation) {
+                addBtn.disabled = true;
+                addBtn.title = 'User creation is disabled by your license.';
+            }
+        })
+        .catch(() => {});
+
     function openModal()  { overlay.hidden = false; document.getElementById('new-username').focus(); }
     function closeModal() { overlay.hidden = true; createUserForm.reset();
                             document.getElementById('create-ok').textContent = '';

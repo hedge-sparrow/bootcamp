@@ -1,0 +1,31 @@
+# Custom License Fields
+#
+# These fields are defined in the Replicated Vendor Portal under
+# "License Fields" and are NOT part of the release bundle. This file
+# documents the fields so they can be (re)created from the Vendor API
+# or Portal UI when setting up a new channel or vendor account.
+#
+# Vendor API reference:
+#   POST https://api.replicated.com/vendor/v3/app/{appId}/licensefields
+#
+# Field definitions:
+#
+# allow_user_creation
+#   Controls whether administrators can create additional users from
+#   within the application. Set to false on licenses where the number
+#   of users should be fixed at initial deployment time.
+#
+# Example vendor API payload:
+# {
+#   "customLicenseFields": [
+#     {
+#       "name":        "allow_user_creation",
+#       "title":       "Allow User Creation",
+#       "type":        "Boolean",
+#       "default":     "true",
+#       "required":    false,
+#       "hidden":      false,
+#       "description": "Allow administrators to create additional users from within the application."
+#     }
+#   ]
+# }

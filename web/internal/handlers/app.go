@@ -19,6 +19,7 @@ type App struct {
 	Files   fs.FS
 	Log     *slog.Logger
 	Updates *replicated.UpdatesClient // nil when SDK is not configured
+	License *replicated.LicenseClient // nil when SDK is not configured
 }
 
 func (a *App) RegisterRoutes(mux *http.ServeMux) {
@@ -48,4 +49,5 @@ func (a *App) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /api/admin/users", admin(http.HandlerFunc(a.handleListUsers)))
 	mux.Handle("POST /api/admin/users", admin(http.HandlerFunc(a.handleCreateUser)))
 	mux.Handle("DELETE /api/admin/users/{id}", admin(http.HandlerFunc(a.handleDeleteUser)))
+	mux.Handle("GET /api/admin/entitlements", admin(http.HandlerFunc(a.handleEntitlements)))
 }

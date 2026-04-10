@@ -39,6 +39,17 @@ func (a *App) handleListUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleCreateUser(w http.ResponseWriter, r *http.Request) {
+	if a.License != nil {
+		allowed, err := a.License.AllowUserCreation(r.Context())
+		if err != nil {
+			a.Log.Warn("license check failed", "err", err)
+		}
+		if !allowed {
+			http.Error(w, "user creation is disabled by your license", http.StatusForbidden)
+			return
+		}
+	}
+
 	var req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -80,6 +91,21 @@ func (a *App) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		"id":       user.ID,
 		"username": user.Username,
 		"is_admin": user.IsAdmin,
+	})
+}
+
+func (a *App) handleEntitlements(w http.ResponseWriter, r *http.Request) {
+	allowUserCreation := true
+	if a.License != nil {
+		var err error
+		allowUserCreation, err = a.License.AllowUserCreation(r.Context())
+		if err != nil {
+			a.Log.Warn("license check failed", "err", err)
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]any{
+		"allow_user_creation": allowUserCreation,
 	})
 }
 

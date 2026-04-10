@@ -8,6 +8,8 @@ on:
       - "v*"
     paths:
       - "web/**"
+      - "helm/**"
+      - "replicated/**"
       - ".github/workflows/build-web.yaml"
 
 jobs:
@@ -56,3 +58,47 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      REPLICATED_API_TOKEN: ${{ secrets.REPLICATED_API_TOKEN }}
+      REPLICATED_APP: bootcamp
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install Replicated CLI
+        run: |
+          VERSION=$(curl -fs https://api.github.com/repos/replicatedhq/replicated/releases/latest \
+            | grep '"tag_name"' | cut -d'"' -f4)
+          curl -fsSL "https://github.com/replicatedhq/replicated/releases/download/${VERSION}/replicated_${VERSION#v}_linux_amd64.tar.gz" \
+            | tar xz replicated
+          sudo mv replicated /usr/local/bin/
+
+      - name: Package release artifacts
+        run: ./replicated/prepare.sh
+
+      - name: Determine channel and version
+        id: vars
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "channel=stable"               >> "$GITHUB_OUTPUT"
+            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=unstable"                                    >> "$GITHUB_OUTPUT"
+            echo "version=main-$(git rev-parse --short HEAD)"          >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create and promote release
+        run: |
+          replicated release create \
+            --yaml-dir ./replicated \
+            --lint \
+            --promote "${{ steps.vars.outputs.channel }}" \
+            --version "${{ steps.vars.outputs.version }}"
