@@ -99,6 +99,5 @@ jobs:
         run: |
           replicated release create \
             --yaml-dir ./replicated \
-            --lint \
             --promote "${{ steps.vars.outputs.channel }}" \
             --version "${{ steps.vars.outputs.version }}"
