@@ -103,28 +103,21 @@ func bootstrap(ctx context.Context, cfg *config.Config, database *db.DB) error {
 		return fmt.Errorf("hash password: %w", err)
 	}
 
-	existing, err := database.GetUserByUsername(ctx, "admin")
+	ok, err := database.HasAnyUsers(ctx)
 	if err != nil {
-		return fmt.Errorf("lookup admin user: %w", err)
+		return fmt.Errorf("check users: %w", err)
 	}
-
-	if existing == nil {
-		// The upload service already has an "admin" token from its own initialisation
-		// (UPLOAD_PRESETADMINPASSWORD). Reuse it rather than trying to create a duplicate.
-		if _, err := database.CreateUser(ctx, "admin", string(hash), "admin", cfg.UploadAdminToken, true); err != nil {
-			return fmt.Errorf("create admin user: %w", err)
-		}
-		if cfg.AdminPassword == "" {
-			fmt.Printf("\n  Admin user created\n  username: admin\n  password: %s\n\n", password)
-		}
+	if ok {
 		return nil
 	}
 
-	// Admin user already exists. If a preset password is configured, keep it in sync.
-	if cfg.AdminPassword != "" {
-		if err := database.UpdatePassword(ctx, existing.ID, string(hash)); err != nil {
-			return fmt.Errorf("sync admin password: %w", err)
-		}
+	// The upload service already has an "admin" token from its own initialisation
+	// (UPLOAD_PRESETADMINPASSWORD). Reuse it rather than trying to create a duplicate.
+	if _, err := database.CreateUser(ctx, "admin", string(hash), "admin", cfg.UploadAdminToken, true); err != nil {
+		return fmt.Errorf("create admin user: %w", err)
+	}
+	if cfg.AdminPassword == "" {
+		fmt.Printf("\n  Admin user created\n  username: admin\n  password: %s\n\n", password)
 	}
 	return nil
 }
