@@ -7,7 +7,12 @@ metadata:
     {{- include "bootcamp.labels" . | nindent 4 }}
 spec:
   instances: {{ .Values.postgres.instances }}
+  imageName: {{ include "bootcamp.proxyImage" (dict "root" . "image" (printf "%s:%s" .Values.postgres.image.repository .Values.postgres.image.tag)) }}
   enableSuperuserAccess: false
+  {{- if .Values.global.replicated.dockerconfigjson }}
+  imagePullSecrets:
+    - name: enterprise-pull-secret
+  {{- end }}
   bootstrap:
     initdb:
       database: {{ .Values.postgres.database }}

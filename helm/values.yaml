@@ -41,6 +41,9 @@ postgres:
   storage:
     size: 5Gi
     # storageClass: ""
+  image:
+    repository: ghcr.io/cloudnative-pg/postgresql
+    tag: "16.6"
 
 # Upload service
 upload:

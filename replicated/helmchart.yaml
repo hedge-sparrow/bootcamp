@@ -76,5 +76,9 @@ spec:
       image:
         repository: codeberg.org/sparrow/upload
         tag: "v2.0.0"
+    postgres:
+      image:
+        repository: ghcr.io/cloudnative-pg/postgresql
+        tag: "16.6"
     replicated:
       replicaCount: 1
