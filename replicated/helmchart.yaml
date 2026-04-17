@@ -17,11 +17,10 @@ spec:
       adminPassword: repl{{ ConfigOption "admin_password" }}
     postgres:
       internal: repl{{ ConfigOptionEquals "postgres_type" "internal" }}
-    upload:
-      internal: repl{{ ConfigOptionEquals "upload_type" "internal" }}
       storage:
         size: repl{{ ConfigOption "postgres_storage_size" }}
     upload:
+      internal: repl{{ ConfigOptionEquals "upload_type" "internal" }}
       storage:
         size: repl{{ ConfigOption "upload_storage_size" }}
     config:
