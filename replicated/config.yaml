@@ -19,8 +19,13 @@ spec:
           help_text: >-
             Password for the built-in admin account, set once on first install.
             After installation this can only be changed from within the application.
+            Must be at least 8 characters.
           required: true
           default: repl{{ RandomString 32 }}
+          validation:
+            regex:
+              pattern: ".{8,}"
+              message: "Admin password must be at least 8 characters."
 
     - name: database
       title: Database
@@ -28,6 +33,10 @@ spec:
         - name: postgres_type
           type: radio
           title: PostgreSQL
+          help_text: >-
+            Choose Embedded to deploy a PostgreSQL cluster managed by CloudNativePG
+            inside the cluster. Choose External to connect to an existing PostgreSQL
+            instance you manage (connection URL required).
           required: true
           default: internal
           items:
@@ -73,6 +82,10 @@ spec:
         - name: upload_type
           type: radio
           title: Upload Service
+          help_text: >-
+            Choose Embedded to deploy the built-in upload service inside the cluster.
+            Choose External to use a separately hosted upload service instance
+            (URL and admin token required).
           required: true
           default: internal
           items:
@@ -141,6 +154,11 @@ spec:
         - name: ingress_type
           type: radio
           title: Access Method
+          help_text: >-
+            Choose how the application is exposed. Traefik (HTTP) uses the built-in
+            ingress controller without TLS. Traefik (HTTPS) automatically provisions
+            a Let's Encrypt certificate (hostname and email required). NodePort exposes
+            the app directly on a cluster port without an ingress controller.
           default: traefik_http
           required: true
           items:

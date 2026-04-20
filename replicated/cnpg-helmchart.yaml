@@ -7,7 +7,7 @@ metadata:
 spec:
   chart:
     name: cloudnative-pg
-    chartVersion: 0.22.0
+    chartVersion: 0.28.0
   weight: 1
   helmUpgradeFlags:
     - --wait
