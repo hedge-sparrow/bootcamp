@@ -72,6 +72,16 @@
           "enum": ["true", "false"],
           "description": "Set to false only when running without TLS (e.g. local development)."
         },
+        "allowPrivateUploads": {
+          "type": "string",
+          "enum": ["true", "false"],
+          "description": "When false, the private upload option is hidden from the upload form."
+        },
+        "allowSingleUseLinks": {
+          "type": "string",
+          "enum": ["true", "false"],
+          "description": "When false, the single-use link option is hidden from the upload form."
+        },
         "replicatedSDKURL": {
           "type": "string",
           "description": "Base URL of the Replicated SDK service. Defaults to http://replicated:3000 when empty."

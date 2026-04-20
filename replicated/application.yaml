@@ -4,6 +4,7 @@ metadata:
   name: bootcamp
 spec:
   title: Bootcamp
+  icon: https://cdn-icons-png.flaticon.com/512/2716/2716054.png
   statusInformers:
     - deployment/bootcamp
     - deployment/bootcamp-upload

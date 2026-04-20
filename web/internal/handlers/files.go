@@ -11,6 +11,14 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	serveTemplate(w, a.Files, "templates/index.html")
 }
 
+func (a *App) handleFeatures(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]any{
+		"allow_private_uploads": a.Cfg.AllowPrivateUploads,
+		"allow_single_use_links": a.Cfg.AllowSingleUseLinks,
+	})
+}
+
 func (a *App) handleUpload(w http.ResponseWriter, r *http.Request) {
 	user := userFromContext(r)
 	filename, err := a.Upload.UploadFile(r.Context(), user.UploadToken, r)

@@ -99,6 +99,22 @@ spec:
           required: true
           when: 'repl{{ ConfigOptionEquals "upload_type" "external" }}'
 
+        - name: allow_private_uploads
+          type: bool
+          title: Allow Private Uploads
+          default: "1"
+          help_text: >-
+            When enabled, users can mark uploaded files as private so they are
+            only accessible to the uploader.
+
+        - name: allow_single_use_links
+          type: bool
+          title: Allow Single-Use Links
+          default: "1"
+          help_text: >-
+            When enabled, users can create single-use download links that are
+            deleted after the first access.
+
         - name: upload_ttl
           type: text
           title: File TTL
@@ -107,6 +123,7 @@ spec:
             How long uploaded files are retained before automatic deletion
             (e.g. 24h, 7d). Leave empty to use the upload service default (24h).
           required: false
+          when: 'repl{{ LicenseFieldValue "allow_advanced_uploads" }}'
 
         - name: upload_max_bytes
           type: text
@@ -116,6 +133,7 @@ spec:
             Maximum file upload size in bytes. Leave empty to use the default
             (2 GiB).
           required: false
+          when: 'repl{{ LicenseFieldValue "allow_advanced_uploads" }}'
 
     - name: ingress
       title: Ingress

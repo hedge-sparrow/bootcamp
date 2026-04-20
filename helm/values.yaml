@@ -18,6 +18,9 @@ config:
   # Override only if pointing at an external upload service.
   uploadServiceURL: ""
   cookieSecure: "true"
+  # Feature toggles — set to "false" to hide the option from the upload form.
+  allowPrivateUploads: "true"
+  allowSingleUseLinks: "true"
   # Override only if the Replicated SDK is not running at the default service address.
   replicatedSDKURL: ""
 
@@ -103,6 +106,7 @@ readinessProbe:
 # See https://docs.replicated.com/vendor/replicated-sdk-customizing for all options.
 # license, channel, and release metadata are injected automatically by Replicated at install time.
 replicated:
+  nameOverride: bootcamp-sdk
   statusInformers:
     - deployment/bootcamp
     - deployment/bootcamp-upload

@@ -60,6 +60,7 @@ func (a *App) RegisterRoutes(mux *http.ServeMux) http.Handler {
 	mux.Handle("POST /upload", a.requireAuth(http.HandlerFunc(a.handleUpload)))
 	mux.Handle("GET /api/files", a.requireAuth(http.HandlerFunc(a.handleListFiles)))
 	mux.Handle("GET /api/me", a.requireAuth(http.HandlerFunc(a.handleMe)))
+	mux.Handle("GET /api/features", a.requireAuth(http.HandlerFunc(a.handleFeatures)))
 	mux.Handle("GET /api/updates", a.requireAuth(http.HandlerFunc(a.handleUpdates)))
 	mux.Handle("GET /files/{name}", a.requireAuth(http.HandlerFunc(a.handleFileProxy)))
 	mux.Handle("DELETE /files/{name}", a.requireAuth(http.HandlerFunc(a.handleFileDelete)))

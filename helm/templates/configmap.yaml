@@ -12,6 +12,8 @@ data:
   UPLOAD_SERVICE_URL: {{ .Values.config.uploadServiceURL | required "config.uploadServiceURL is required when upload.internal is false" | quote }}
   {{- end }}
   COOKIE_SECURE: {{ .Values.config.cookieSecure | quote }}
+  ALLOW_PRIVATE_UPLOADS: {{ .Values.config.allowPrivateUploads | quote }}
+  ALLOW_SINGLE_USE_LINKS: {{ .Values.config.allowSingleUseLinks | quote }}
   {{- if .Values.config.replicatedSDKURL }}
   REPLICATED_SDK_URL: {{ .Values.config.replicatedSDKURL | quote }}
   {{- end }}

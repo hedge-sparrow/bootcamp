@@ -49,6 +49,20 @@ let currentUsername = '';
 
 const uploadForm = document.getElementById('upload-form');
 if (uploadForm) {
+    fetch('/api/features')
+        .then(r => r.json())
+        .then(f => {
+            if (!f.allow_private_uploads) {
+                const el = document.getElementById('opt-private');
+                if (el) el.closest('label').hidden = true;
+            }
+            if (!f.allow_single_use_links) {
+                const el = document.getElementById('opt-single');
+                if (el) el.closest('label').hidden = true;
+            }
+        })
+        .catch(() => {});
+
     fetch('/api/me')
         .then(r => r.json())
         .then(me => {

@@ -39,6 +39,13 @@ stringData:
             name: postgres
             limits:
               maxAge: 168h
+        - logs:
+            selector:
+              - app.kubernetes.io/name=cloudnative-pg
+            namespace: cnpg-system
+            name: cnpg-operator
+            limits:
+              maxAge: 168h
         {{ end }}
         - http:
             collectorName: app-health

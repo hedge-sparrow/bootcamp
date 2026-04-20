@@ -31,5 +31,7 @@ podman run --network bootcamp --name bootcamp-web \
     -e UPLOAD_ADMIN_TOKEN="$UPLOAD_ADMIN_TOKEN" \
     -e BIND_ADDRESS=":8081" \
     -e COOKIE_SECURE=false \
+    -e ALLOW_PRIVATE_UPLOADS="${ALLOW_PRIVATE_UPLOADS:-true}" \
+    -e ALLOW_SINGLE_USE_LINKS="${ALLOW_SINGLE_USE_LINKS:-true}" \
     -p 8081:8081 \
     bootcamp-web

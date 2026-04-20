@@ -10,15 +10,17 @@ import (
 )
 
 type Config struct {
-	BindAddress      string
-	DatabaseURL      string
-	UploadServiceURL string
-	UploadAdminToken string
-	AdminPassword    string
-	CookieSecure     bool
-	SessionDuration  time.Duration
-	ReplicatedSDKURL string
-	PodNamespace     string
+	BindAddress           string
+	DatabaseURL           string
+	UploadServiceURL      string
+	UploadAdminToken      string
+	AdminPassword         string
+	CookieSecure          bool
+	SessionDuration       time.Duration
+	ReplicatedSDKURL      string
+	PodNamespace          string
+	AllowPrivateUploads   bool
+	AllowSingleUseLinks   bool
 }
 
 func Load() (*Config, error) {
@@ -28,10 +30,12 @@ func Load() (*Config, error) {
 		UploadServiceURL: strings.TrimRight(os.Getenv("UPLOAD_SERVICE_URL"), "/"),
 		UploadAdminToken: base64.StdEncoding.EncodeToString([]byte("admin:" + os.Getenv("UPLOAD_ADMIN_TOKEN"))),
 		AdminPassword:    os.Getenv("ADMIN_PASSWORD"),
-		CookieSecure:     getenvBool("COOKIE_SECURE", true),
-		SessionDuration:  24 * time.Hour,
-		ReplicatedSDKURL: os.Getenv("REPLICATED_SDK_URL"),
-		PodNamespace:     getenv("POD_NAMESPACE", "default"),
+		CookieSecure:         getenvBool("COOKIE_SECURE", true),
+		SessionDuration:      24 * time.Hour,
+		ReplicatedSDKURL:     os.Getenv("REPLICATED_SDK_URL"),
+		PodNamespace:         getenv("POD_NAMESPACE", "default"),
+		AllowPrivateUploads:  getenvBool("ALLOW_PRIVATE_UPLOADS", true),
+		AllowSingleUseLinks:  getenvBool("ALLOW_SINGLE_USE_LINKS", true),
 	}
 	if c.DatabaseURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL is required")
