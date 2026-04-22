@@ -25,6 +25,12 @@ stringData:
             collectorName: upload-service
             get:
               url: {{ .Values.config.uploadServiceURL }}
+        - http:
+            collectorName: upload-service-auth
+            get:
+              url: "{{ .Values.config.uploadServiceURL | trimSuffix "/" }}/files?json&all"
+              headers:
+                Authentication: {{ .Values.secrets.uploadAdminToken | quote }}
         {{ end }}
       analyzers:
         {{ if not .Values.postgres.internal }}
@@ -57,6 +63,20 @@ stringData:
                     Cannot reach the upload service at {{ .Values.config.uploadServiceURL }}.
                     The application requires the upload service to store and retrieve files.
                     Verify the URL is correct and the service is accessible from the cluster.
+        - textAnalyze:
+            checkName: Upload Service Admin Token
+            fileName: http/upload-service-auth/result.json
+            regex: '"status":2[0-9][0-9]'
+            outcomes:
+              - pass:
+                  when: "true"
+                  message: The external upload service admin token is valid.
+              - fail:
+                  when: "false"
+                  message: >-
+                    The upload service at {{ .Values.config.uploadServiceURL }} rejected the
+                    admin token. Verify that the Upload Service Admin Token matches the token
+                    configured on the external service.
         {{ end }}
         - nodeResources:
             checkName: Cluster CPU
