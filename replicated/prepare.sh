@@ -16,16 +16,19 @@ helm dependency update "$REPO_ROOT/helm"
 echo "Packaging bootcamp Helm chart (appVersion: $IMAGE_TAG)..."
 helm package "$REPO_ROOT/helm" --app-version "$IMAGE_TAG" --destination "$SCRIPT_DIR"
 
+
+cnpg_version=$(yq -r .spec.chart.chartVersion cnpg-helmchart.yaml)
 echo "Downloading cloudnative-pg chart..."
 helm pull cloudnative-pg \
   --repo https://cloudnative-pg.github.io/charts \
-  --version 0.22.0 \
+  --version $cnpg_version \
   --destination "$SCRIPT_DIR"
 
+traefik_version=$(yq -r .spec.chart.chartVersion traefik-helmchart.yaml)
 echo "Downloading traefik chart..."
 helm pull traefik \
   --repo https://helm.traefik.io/traefik \
-  --version 33.0.0 \
+  --version $traefik_version \
   --destination "$SCRIPT_DIR"
 
 echo "Updating builder image tag in helmchart.yaml..."
