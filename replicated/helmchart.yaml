@@ -24,13 +24,13 @@ spec:
       storage:
         size: repl{{ ConfigOption "upload_storage_size" }}
     config:
-      cookieSecure: repl{{ ConfigOptionEquals "ingress_type" "traefik_https" }}
+      cookieSecure: repl{{ or (ConfigOptionEquals "ingress_type" "traefik_https") (ConfigOptionEquals "ingress_type" "traefik_https_existing_cert") }}
       allowPrivateUploads: repl{{ ConfigOptionEquals "allow_private_uploads" "1" }}
       allowSingleUseLinks: repl{{ ConfigOptionEquals "allow_single_use_links" "1" }}
       replicatedSDKURL: "http://bootcamp-sdk:3000"
     gateway:
       host: repl{{ ConfigOption "hostname" }}
-      tls: repl{{ ConfigOptionEquals "ingress_type" "traefik_https" }}
+      tls: repl{{ or (ConfigOptionEquals "ingress_type" "traefik_https") (ConfigOptionEquals "ingress_type" "traefik_https_existing_cert") }}
   optionalValues:
     - when: 'repl{{ ConfigOptionEquals "ingress_type" "nodeport" }}'
       recursiveMerge: true
@@ -64,6 +64,12 @@ spec:
       values:
         upload:
           maxUploadBytes: repl{{ ConfigOption "upload_max_bytes" }}
+    - when: 'repl{{ ConfigOptionEquals "ingress_type" "traefik_https_existing_cert" }}'
+      recursiveMerge: true
+      values:
+        gateway:
+          tlsCert: repl{{ ConfigOption "tls_cert" }}
+          tlsKey: repl{{ ConfigOption "tls_key" }}
   builder:
     # Builder renders the chart to collect images for the airgap bundle.
     # Override the proxy domain so images resolve to their original registries.

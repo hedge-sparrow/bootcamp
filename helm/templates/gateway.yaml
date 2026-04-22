@@ -5,7 +5,7 @@ metadata:
   name: {{ include "bootcamp.fullname" . }}
   labels:
     {{- include "bootcamp.labels" . | nindent 4 }}
-  {{- if .Values.gateway.tls }}
+  {{- if and .Values.gateway.tls (not .Values.gateway.tlsCert) }}
   annotations:
     traefik.io/gateway.certResolver.websecure: letsencrypt
   {{- end }}

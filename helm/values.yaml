@@ -73,8 +73,14 @@ upload:
 gateway:
   # Hostname the application is served on.
   host: ""
-  # Enable TLS via the Traefik letsencrypt cert resolver.
+  # Enable TLS. When true, either Let's Encrypt (via Traefik) or an existing
+  # certificate (tlsCert/tlsKey) is used depending on which fields are set.
   tls: false
+  # PEM-encoded TLS certificate (full chain). When set together with tlsKey,
+  # a kubernetes.io/tls Secret is created and Let's Encrypt is not used.
+  tlsCert: ""
+  # PEM-encoded TLS private key corresponding to tlsCert.
+  tlsKey: ""
 
 resources:
   limits:

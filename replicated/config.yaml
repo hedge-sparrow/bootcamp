@@ -156,9 +156,11 @@ spec:
           title: Access Method
           help_text: >-
             Choose how the application is exposed. Traefik (HTTP) uses the built-in
-            ingress controller without TLS. Traefik (HTTPS) automatically provisions
-            a Let's Encrypt certificate (hostname and email required). NodePort exposes
-            the app directly on a cluster port without an ingress controller.
+            ingress controller without TLS. Traefik (HTTPS, Let's Encrypt) automatically
+            provisions a certificate (hostname and email required). Traefik (HTTPS,
+            Existing Certificate) uses a TLS certificate you supply (hostname,
+            certificate, and private key required). NodePort exposes the app directly
+            on a cluster port without an ingress controller.
           default: traefik_http
           required: true
           items:
@@ -166,6 +168,8 @@ spec:
               title: "Traefik (HTTP)"
             - name: traefik_https
               title: "Traefik (HTTPS, Let's Encrypt)"
+            - name: traefik_https_existing_cert
+              title: "Traefik (HTTPS, Existing Certificate)"
             - name: nodeport
               title: "NodePort (no ingress controller)"
 
@@ -195,3 +199,21 @@ spec:
             account registration.
           required: true
           when: 'repl{{ ConfigOptionEquals "ingress_type" "traefik_https" }}'
+
+        - name: tls_cert
+          type: textarea
+          title: TLS Certificate
+          help_text: >-
+            PEM-encoded TLS certificate (full chain). Paste the contents of your
+            .crt or .pem file here.
+          required: true
+          when: 'repl{{ ConfigOptionEquals "ingress_type" "traefik_https_existing_cert" }}'
+
+        - name: tls_key
+          type: password
+          title: TLS Private Key
+          help_text: >-
+            PEM-encoded private key corresponding to the TLS certificate above.
+            Paste the contents of your .key file here.
+          required: true
+          when: 'repl{{ ConfigOptionEquals "ingress_type" "traefik_https_existing_cert" }}'

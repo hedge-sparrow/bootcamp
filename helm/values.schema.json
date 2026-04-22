@@ -229,7 +229,15 @@
         },
         "tls": {
           "type": "boolean",
-          "description": "Enable TLS via the Traefik letsencrypt cert resolver."
+          "description": "Enable TLS. Pair with tlsCert/tlsKey to use an existing certificate, or leave those empty to use Traefik's Let's Encrypt resolver."
+        },
+        "tlsCert": {
+          "type": "string",
+          "description": "PEM-encoded TLS certificate (full chain). When set with tlsKey, a TLS Secret is created and Let's Encrypt is not used."
+        },
+        "tlsKey": {
+          "type": "string",
+          "description": "PEM-encoded TLS private key corresponding to tlsCert."
         }
       }
     },
