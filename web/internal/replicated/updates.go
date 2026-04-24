@@ -15,7 +15,7 @@ type Update struct {
 }
 
 // UpdatesClient checks for available updates via the Replicated in-cluster SDK API.
-// Results are cached for five minutes to reflect new releases promptly.
+// Results are cached for 30 seconds.
 type UpdatesClient struct {
 	sdkURL   string
 	client   *http.Client
@@ -37,7 +37,7 @@ func (c *UpdatesClient) CheckUpdates(ctx context.Context) ([]Update, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if !c.cachedAt.IsZero() && time.Since(c.cachedAt) < 5*time.Minute {
+	if !c.cachedAt.IsZero() && time.Since(c.cachedAt) < 30*time.Second {
 		return c.cached, nil
 	}
 

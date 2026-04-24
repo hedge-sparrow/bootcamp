@@ -27,7 +27,7 @@ type licenseInfo struct {
 }
 
 // LicenseClient reads license information from the Replicated
-// in-cluster SDK API. Results are cached for five minutes.
+// in-cluster SDK API. Results are cached for 30 seconds.
 type LicenseClient struct {
 	sdkURL       string
 	client       *http.Client
@@ -49,7 +49,7 @@ func (c *LicenseClient) fields(ctx context.Context) (map[string]licenseField, er
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if !c.cachedAt.IsZero() && time.Since(c.cachedAt) < 5*time.Minute {
+	if !c.cachedAt.IsZero() && time.Since(c.cachedAt) < 30*time.Second {
 		return c.cached, nil
 	}
 
@@ -82,7 +82,7 @@ func (c *LicenseClient) info(ctx context.Context) (*licenseInfo, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if c.cachedInfo != nil && time.Since(c.cachedInfoAt) < 5*time.Minute {
+	if c.cachedInfo != nil && time.Since(c.cachedInfoAt) < 30*time.Second {
 		return c.cachedInfo, nil
 	}
 
