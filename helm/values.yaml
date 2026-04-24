@@ -54,7 +54,7 @@ upload:
   internal: true
   image:
     repository: codeberg.org/sparrow/upload
-    tag: "v2.0.0"
+    tag: "v2.2.0"
     pullPolicy: IfNotPresent
   # File TTL — empty string falls back to the upload service default (24h).
   ttl: ""

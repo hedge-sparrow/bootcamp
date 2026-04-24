@@ -20,7 +20,7 @@ podman run -d --network bootcamp --name bootcamp-upload \
     -e UPLOAD_DATAPATH=/data \
     -e UPLOAD_PRESETADMINPASSWORD="$UPLOAD_ADMIN_TOKEN" \
     --tmpfs /data \
-    codeberg.org/sparrow/upload:v2.0.0
+    codeberg.org/sparrow/upload:v2.2.0
 
 until podman exec bootcamp-pg pg_isready -U bootcamp -q 2>/dev/null; do sleep 1; done
 until podman logs bootcamp-upload 2>&1 | grep -q "listening on"; do sleep 1; done
